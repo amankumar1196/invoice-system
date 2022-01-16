@@ -1,17 +1,18 @@
 import './App.css';
 import { Routes, Route, Navigate} from 'react-router-dom';
+import { connect } from 'react-redux';
 import Layout from './pages/layout/layout';
 import PublicLayout from './pages/layout/publicLayout';
+import Dashboard from './pages/dashboard'
 import Invoices from './pages/invoices'
 import CreateInvoice from './pages/invoices/CreateInvoice'
-import Dashboard from './pages/dashboard'
+import Clients from './pages/clients';
 
 import SignInForm from './pages/Public/signIn';
 import SignUpForm from './pages/Public/signUp';
-import { connect } from 'react-redux';
 
 const App = (props) => {
-  const isLoggedIn = localStorage.getItem("access-token")
+  const isLoggedIn = props.isLoggedIn || localStorage.getItem("access-token")
   return (
     <>
       {
@@ -20,6 +21,7 @@ const App = (props) => {
           <Route path="/" element={<Layout />}>
             <Route path="invoices" element={<Invoices />} />
             <Route path="invoices/new" element={<CreateInvoice />} />
+            <Route path="clients" element={<Clients />} />
             <Route path="/" element={<Dashboard />} />
           </Route>
           <Route path='*' element={<Navigate to='/' />} />

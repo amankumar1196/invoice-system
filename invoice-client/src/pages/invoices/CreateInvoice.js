@@ -1,8 +1,14 @@
-import "./createInvoice.css";
+import React from 'react';
 import {NavLink} from 'react-router-dom';
+import { connect } from "react-redux";
+import "./createInvoice.css";
 import {useRef, useState, useEffect} from "react"
+import { Formik, Form, FieldArray } from 'formik';
+import * as Yup from 'yup';
 
-function CreateInvoice() {
+import { InputField } from '../../components/form';
+
+function CreateInvoice(props) {
 	const [isDrop, setDropState] = useState(false)
 	const [file, setFile] = useState(null)
 	const [activeSections, setActiveSections] = useState({logo: true, company: true, client: true})
@@ -101,240 +107,296 @@ function CreateInvoice() {
 
 					{/* Invoice sections */}
 					{/* Invoice sections Logo */}
-					<button class={`accordion ${!activeSections.logo && "mb-16"}`} onClick={()=> setActiveSections({...activeSections, logo: !activeSections.logo})}>
-						<div class="d-flex align-items-center justify-content-between">
-							<p class="accordion-header d-flex align-items-center">
-								<i class='bx bx-photo-album'></i>
-								<span>Add Logo</span>
-							</p>
-							<p><i class={`bx fs-24 ${!activeSections.logo ? "bx-chevron-right" : "bx-chevron-down"}`}></i></p>
-						</div>
-					</button>
-					<div class={`panel ${activeSections.logo && "active"}`}>
-						{!file ? 
-							<div 
-								class={`drag-area ${isDrop ? "active" : ""}`} 
-								onDragOver={onDragOver} 
-								onDragLeave={onDragLeave}
-								onDrop={onDrop}
-							>
-								<div class="icon">
-									<i class='bx bxs-file-image' ></i>
-								</div>
-
-								{isDrop ?
-									<span class="drag-header">Release to Upload</span>
-									:
-									<span class="drag-header">Drop your image here or <span class="button" onClick={()=> inputRef.current.click()}>browse</span></span>
-								}
-								<input ref={inputRef} type="file" onChange={fileUpload} hidden/>
-								<span class="drag-header-subtitle">Supports: JPG, JPEG, PNG</span>
-
-							</div>
-							:
-							<div class="drag-area">
-								<img class="uploaded-file pt-24" src={file} />
-								<div class="d-flex align-items-center pt-24 pb-16">
-									<button class="btn btn-sm btn-outline-danger d-flex align-items-center mr-8" onClick={()=> setFile(null)}><i class='bx bx-x-circle mr-8 fs-24'></i> Cancel</button>
-									<button class="btn btn-sm btn-outline-primary d-flex align-items-center ml-8" onClick={()=>{}}><i class='bx bx-cloud-upload mr-8 fs-24'></i> Upload</button>
-								</div>
-							</div>
-							}
-					</div>
-
-					{/* Invoice sections Company */}
-					<button class={`accordion ${!activeSections.company && "mb-16"}`} onClick={()=> setActiveSections({...activeSections, company: !activeSections.company})}>
-						<div class="d-flex align-items-center justify-content-between">
-							<p class="accordion-header d-flex align-items-center">
-								<i class='bx bx-calendar-edit'></i>
-								<span>Company Details</span>
-							</p>
-							<p><i class={`bx fs-24 ${!activeSections.company ? "bx-chevron-right" : "bx-chevron-down"}`}></i></p>
-						</div>
-					</button>
-					<div class={`panel ${activeSections.company && "active"}`}>
-						<div>
-							<div class="form-group">
-								<label>Company Name</label>
-								<input type="text" class="form-control" placeholder="" />
-							</div>
-							<div class="d-flex w-100">
-								<div class="form-group w-100 pr-16">
-									<label>Email</label>
-									<input type="text" class="form-control" placeholder="" />
-								</div>
-								<div class="form-group w-100 pl-16">
-									<label>Phone</label>
-									<input type="text" class="form-control" placeholder="" />
-								</div>
-							</div>
-							<div class="d-flex w-100">
-								<div class="form-group w-100 pr-16">
-									<label>Address 1</label>
-									<input type="text" class="form-control" placeholder="" />
-								</div>
-								<div class="form-group w-100 pl-16">
-									<label>Address 2</label>
-									<input type="text" class="form-control" placeholder="" />
-								</div>
-							</div>
-							<div class="d-flex w-100">
-								<div class="form-group w-100 pr-16">
-									<label>Country</label>
-									<select class="form-control">
-										<option>1</option>
-										<option>2</option>
-										<option>3</option>
-										<option>4</option>
-										<option>5</option>
-									</select>
-								</div>
-								<div class="form-group w-100 pl-16">
-									<label>State</label>
-									<select class="form-control">
-										<option>1</option>
-										<option>2</option>
-										<option>3</option>
-										<option>4</option>
-										<option>5</option>
-									</select>
-								</div>
-							</div>
-						</div>
-						{/* <div class="form-container">
-							<form onSubmit={handleSubmit}>
-								<h1>Login Form</h1>
-								<div className="ui divider"></div>
-								<div className="ui form">
-									<div className="field">
-										<label>Username</label>
-										<input
-											type="text"
-											name="username"
-											placeholder="Username"
-											value={formValues.username}
-											onChange={handleChange}
-										/>
+					<Formik
+						initialValues={{
+							invoiceItems: [{description: "", quantity: 0, price: 0}]
+						}}
+						validationSchema={Yup.object({
+							firstName: Yup.string()
+								.max(15, 'Must be 15 characters or less')
+								.required('Required'),
+							lastName: Yup.string()
+								.max(20, 'Must be 20 characters or less')
+								.required('Required'),
+							email: Yup.string()
+								.email('Invalid email address')
+								.required('Required'),
+							password: Yup.string()
+								.required('Required')
+						})}
+						onSubmit={(values, { setSubmitting }) => {
+							// props.dispatch(register(values))
+							// setTimeout(() => {
+							//   alert(JSON.stringify(values, null, 2));
+							//   setSubmitting(false);
+							// }, 400);
+						}}
+					
+						render={({ values }) => (
+							<Form>
+								<button class={`accordion ${!activeSections.logo && "mb-16"}`} onClick={()=> setActiveSections({...activeSections, logo: !activeSections.logo})}>
+									<div class="d-flex align-items-center justify-content-between">
+										<p class="accordion-header d-flex align-items-center">
+											<i class='bx bx-photo-album'></i>
+											<span>Add Logo</span>
+										</p>
+										<p><i class={`bx fs-24 ${!activeSections.logo ? "bx-chevron-right" : "bx-chevron-down"}`}></i></p>
 									</div>
-									<p>{formErrors.username}</p>
-									<div className="field">
-										<label>Email</label>
-										<input
-											type="text"
-											name="email"
-											placeholder="Email"
-											value={formValues.email}
-											onChange={handleChange}
-										/>
+								</button>
+								<div class={`panel ${activeSections.logo && "active"}`}>
+									{!file ? 
+										<div 
+											class={`drag-area ${isDrop ? "active" : ""}`} 
+											onDragOver={onDragOver} 
+											onDragLeave={onDragLeave}
+											onDrop={onDrop}
+										>
+											<div class="icon">
+												<i class='bx bxs-file-image' ></i>
+											</div>
+
+											{isDrop ?
+												<span class="drag-header">Release to Upload</span>
+												:
+												<span class="drag-header">Drop your image here or <span class="button" onClick={()=> inputRef.current.click()}>browse</span></span>
+											}
+											<input ref={inputRef} type="file" onChange={fileUpload} hidden/>
+											<span class="drag-header-subtitle">Supports: JPG, JPEG, PNG</span>
+
+										</div>
+										:
+										<div class="drag-area">
+											<img class="uploaded-file pt-24" src={file} />
+											<div class="d-flex align-items-center pt-24 pb-16">
+												<button class="btn btn-sm btn-outline-danger d-flex align-items-center mr-8" onClick={()=> setFile(null)}><i class='bx bx-x-circle mr-8 fs-24'></i> Cancel</button>
+												<button class="btn btn-sm btn-outline-primary d-flex align-items-center ml-8" onClick={()=>{}}><i class='bx bx-cloud-upload mr-8 fs-24'></i> Upload</button>
+											</div>
+										</div>
+										}
+								</div>
+
+								{/* Invoice sections Company */}
+								<button class={`accordion ${!activeSections.company && "mb-16"}`} onClick={()=> setActiveSections({...activeSections, company: !activeSections.company})}>
+									<div class="d-flex align-items-center justify-content-between">
+										<p class="accordion-header d-flex align-items-center">
+											<i class='bx bx-calendar-edit'></i>
+											<span>Company Details</span>
+										</p>
+										<p><i class={`bx fs-24 ${!activeSections.company ? "bx-chevron-right" : "bx-chevron-down"}`}></i></p>
 									</div>
-									<p>{formErrors.email}</p>
-									<div className="field">
-										<label>Password</label>
-										<input
-											type="password"
-											name="password"
-											placeholder="Password"
-											value={formValues.password}
-											onChange={handleChange}
-										/>
+								</button>
+								<div class={`panel ${activeSections.company && "active"}`}>
+									<div>
+										<div class="form-group">
+											<label>Company Name</label>
+											<input type="text" class="form-control" placeholder="" />
+										</div>
+										<div class="d-flex w-100">
+											<div class="form-group w-100 pr-16">
+												<label>Email</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+											<div class="form-group w-100 pl-16">
+												<label>Phone</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+										</div>
+										<div class="d-flex w-100">
+											<div class="form-group w-100 pr-16">
+												<label>Address 1</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+											<div class="form-group w-100 pl-16">
+												<label>Address 2</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+										</div>
+										<div class="d-flex w-100">
+											<div class="form-group w-100 pr-16">
+												<label>Country</label>
+												<select class="form-control">
+													<option>1</option>
+													<option>2</option>
+													<option>3</option>
+													<option>4</option>
+													<option>5</option>
+												</select>
+											</div>
+											<div class="form-group w-100 pl-16">
+												<label>State</label>
+												<select class="form-control">
+													<option>1</option>
+													<option>2</option>
+													<option>3</option>
+													<option>4</option>
+													<option>5</option>
+												</select>
+											</div>
+										</div>
 									</div>
-									<p>{formErrors.password}</p>
-									<button className="fluid ui button blue">Submit</button>
+									{/* <div class="form-container">
+										<form onSubmit={handleSubmit}>
+											<h1>Login Form</h1>
+											<div className="ui divider"></div>
+											<div className="ui form">
+												<div className="field">
+													<label>Username</label>
+													<input
+														type="text"
+														name="username"
+														placeholder="Username"
+														value={formValues.username}
+														onChange={handleChange}
+													/>
+												</div>
+												<p>{formErrors.username}</p>
+												<div className="field">
+													<label>Email</label>
+													<input
+														type="text"
+														name="email"
+														placeholder="Email"
+														value={formValues.email}
+														onChange={handleChange}
+													/>
+												</div>
+												<p>{formErrors.email}</p>
+												<div className="field">
+													<label>Password</label>
+													<input
+														type="password"
+														name="password"
+														placeholder="Password"
+														value={formValues.password}
+														onChange={handleChange}
+													/>
+												</div>
+												<p>{formErrors.password}</p>
+												<button className="fluid ui button blue">Submit</button>
+											</div>
+										</form>
+									</div> */}
 								</div>
-							</form>
-						</div> */}
-					</div>
 
-					{/* Invoice sections Client */}
-					<button class={`accordion ${!activeSections.client && "mb-16"}`} onClick={()=> setActiveSections({...activeSections, client: !activeSections.client})}>
-						<div class="d-flex align-items-center justify-content-between">
-							<p class="accordion-header d-flex align-items-center">
-								<i class='bx bx-user-pin'></i>
-								<span>Client Details</span>
-							</p>
-							<p><i class={`bx fs-24 ${!activeSections.client ? "bx-chevron-right" : "bx-chevron-down"}`}></i></p>
-						</div>
-					</button>
-					<div class={`panel ${activeSections.client && "active"}`}>
-						<div>
-							<div class="form-group">
-								<label>Company Name</label>
-								<input type="text" class="form-control" placeholder="" />
-							</div>
-							<div class="d-flex w-100">
-								<div class="form-group w-100 pr-16">
-									<label>Email</label>
-									<input type="text" class="form-control" placeholder="" />
+								{/* Invoice sections Client */}
+								<button class={`accordion ${!activeSections.client && "mb-16"}`} onClick={()=> setActiveSections({...activeSections, client: !activeSections.client})}>
+									<div class="d-flex align-items-center justify-content-between">
+										<p class="accordion-header d-flex align-items-center">
+											<i class='bx bx-user-pin'></i>
+											<span>Client Details</span>
+										</p>
+										<p><i class={`bx fs-24 ${!activeSections.client ? "bx-chevron-right" : "bx-chevron-down"}`}></i></p>
+									</div>
+								</button>
+								<div class={`panel ${activeSections.client && "active"}`}>
+									<div>
+										<div class="form-group">
+											<label>Company Name</label>
+											<input type="text" class="form-control" placeholder="" />
+										</div>
+										<div class="d-flex w-100">
+											<div class="form-group w-100 pr-16">
+												<label>Email</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+											<div class="form-group w-100 pl-16">
+												<label>Phone</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+										</div>
+										<div class="d-flex w-100">
+											<div class="form-group w-100 pr-16">
+												<label>Address 1</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+											<div class="form-group w-100 pl-16">
+												<label>Address 2</label>
+												<input type="text" class="form-control" placeholder="" />
+											</div>
+										</div>
+										<div class="d-flex w-100">
+											<div class="form-group w-100 pr-16">
+												<label>Country</label>
+												<select class="form-control">
+													<option>1</option>
+													<option>2</option>
+													<option>3</option>
+													<option>4</option>
+													<option>5</option>
+												</select>
+											</div>
+											<div class="form-group w-100 pl-16">
+												<label>State</label>
+												<select class="form-control">
+													<option>1</option>
+													<option>2</option>
+													<option>3</option>
+													<option>4</option>
+													<option>5</option>
+												</select>
+											</div>
+										</div>
+									</div>
 								</div>
-								<div class="form-group w-100 pl-16">
-									<label>Phone</label>
-									<input type="text" class="form-control" placeholder="" />
-								</div>
-							</div>
-							<div class="d-flex w-100">
-								<div class="form-group w-100 pr-16">
-									<label>Address 1</label>
-									<input type="text" class="form-control" placeholder="" />
-								</div>
-								<div class="form-group w-100 pl-16">
-									<label>Address 2</label>
-									<input type="text" class="form-control" placeholder="" />
-								</div>
-							</div>
-							<div class="d-flex w-100">
-								<div class="form-group w-100 pr-16">
-									<label>Country</label>
-									<select class="form-control">
-										<option>1</option>
-										<option>2</option>
-										<option>3</option>
-										<option>4</option>
-										<option>5</option>
-									</select>
-								</div>
-								<div class="form-group w-100 pl-16">
-									<label>State</label>
-									<select class="form-control">
-										<option>1</option>
-										<option>2</option>
-										<option>3</option>
-										<option>4</option>
-										<option>5</option>
-									</select>
-								</div>
-							</div>
-						</div>
-					</div>
 
-					{/* Invoice sections Data Details */}
-					<div class="accordion d-flex align-items-center justify-content-between">
-						<p class="accordion-header d-flex align-items-center">
-							<i class='bx bx-spreadsheet'></i>
-							<span>Invoice Details</span>
-						</p>
-						<p><button class="d-flex align-items-center btn btn-sm btn-outline-primary"><i class='bx bx-plus'></i> Add Row</button></p>
-					</div>
-					<div class="panel active">
-						<div>
-							<div class="form-group">
-								<label>Description</label>
-								<input type="text" class="form-control" placeholder="" />
-							</div>
-							<div class="d-flex w-100">
-								<div class="form-group w-100 pr-16">
-									<label>Rate</label>
-									<input type="number" class="form-control" placeholder="" />
-								</div>
-								<div class="form-group w-100 pl-16">
-									<label>Quantity</label>
-									<input type="number" class="form-control" placeholder="" />
-								</div>
-							</div>
-						</div>
-					</div>
+								{/* Invoice sections Data Details */}
+								<FieldArray
+									name="invoiceItems"
+									render={({ insert, remove, push }) => (
+										<>
+									<div class="accordion d-flex align-items-center justify-content-between">
+										<p class="accordion-header d-flex align-items-center">
+											<i class='bx bx-spreadsheet'></i>
+											<span>Invoice Details</span>
+										</p>
+										<p><button class="d-flex align-items-center btn btn-sm btn-outline-primary" type="button" onClick={() => push({description: "", quantity: 0, price: 0})}><i class='bx bx-plus'></i> Add Row</button></p>
+									</div>
+									<div class="panel active">
+										{values.invoiceItems.map((invoice, index) => (
+											<div key={index}>
+												<label className="d-flex justify-content-center fs-12">Invoice Item {index+1}</label>
+												{/** both these conventions do the same */}
+												<div className="d-flex mb-16" key={index}>
 
+													<div className="w-100">
+														<InputField
+															label="Description"
+															name={`invoiceItems[${index}].description`}
+															type="text"
+															placeholder="Item name"
+														/>
+														<div class="d-flex w-100">
+															<InputField
+																label="Quantity"
+																name={`invoiceItems[${index}].quantity`}
+																type="number"
+																wrapperClass="form-group w-100 pr-16"
+																/>
+															<InputField
+																label="Rate"
+																name={`invoiceItems[${index}].price`}
+																type="number"
+																wrapperClass="form-group w-100 pl-16"
+															/>
+														</div>
+													</div>
+													{index != 0 && <div className='pt-20 ml-16'>
+														<button class="btn btn-sm btn-outline-primary" type="button" onClick={() => remove(index)}>
+															<i className="bx bx-trash fs-16 "></i>
+														</button> 
+													</div>}
+												</div>
+											</div>
+										))}
+									</div>
+									</>
+								)}
+								/>
+
+							</Form>
+						)}
+					/>
 				</div>
-
 				<div class="create-invoice-right">
 					<div class="preview-wrapper">
 						<div class="preview-header">

@@ -26,7 +26,7 @@ export const createInvoice = (title, description) => async (dispatch) => {
 
 export const retrieveInvoices = () => async (dispatch) => {
   try {
-    const res = await apiHandler.get("/tutorials");
+    const res = await apiHandler.get("/v1/invoices");
     
     dispatch({
       type: RETRIEVE_INVOICES,

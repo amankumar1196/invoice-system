@@ -1,7 +1,8 @@
 const dbConfig = require("../config/db.js");
-
+var fs        = require("fs");
+var path      = require("path");
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+var sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
   operatorsAliases: false,
@@ -16,22 +17,24 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
 
 const db = {};
 
+fs
+  .readdirSync(__dirname)
+  .filter(function(file) {
+    return (file.indexOf(".") !== 0) && (file !== "index.js");
+  })
+  .forEach(function(file) {
+    var model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  });
+
+Object.keys(db).forEach(function(modelName) {
+  if ("associate" in db[modelName]) {
+    db[modelName].associate(db);
+  }
+});
+
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
-
-db.user = require("./UserModel.js")(sequelize, Sequelize);
-db.role = require("./RoleModel.js")(sequelize, Sequelize);
-
-db.role.belongsToMany(db.user, {
-  through: "user_roles",
-  foreignKey: "roleId",
-  otherKey: "userId"
-});
-db.user.belongsToMany(db.role, {
-  through: "user_roles",
-  foreignKey: "userId",
-  otherKey: "roleId"
-});
 
 db.ROLES = ["user", "admin", "moderator"];
 

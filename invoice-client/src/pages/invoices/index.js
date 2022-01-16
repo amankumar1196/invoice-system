@@ -1,8 +1,25 @@
 import "./invoices.css";
 import {NavLink} from 'react-router-dom';
+import { useEffect } from "react";
+import { connect } from "react-redux";
+import { retrieveInvoices } from "../../redux/actions/invoiceActions";
+import { startCase } from "lodash";
+import moment from "moment";
 
-function Invoices() {
-    return (
+function Invoices(props) {
+
+	useEffect(()=> {
+		props.dispatch(retrieveInvoices());
+	},[])
+	
+	const getStatusClass = (status) => {
+		switch(status){
+			case "send": return "status-paid"
+			case "not_send": return "status-unpaid"
+			default: return "status-pending"
+		}
+	}
+	return (
 		<div class="invoice-page-wrapper">
 			<div class="invoice-page-header">
 				<div class="invoice-page-header-left">
@@ -40,214 +57,55 @@ function Invoices() {
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>
-							<div class="select-box">
-								<label class="checkbox-container">
-									<input type="checkbox" />
-									<span class="checkmark"></span>
-								</label>
-								<i class='bx bx-file invoice-icon'></i>
-							</div>
-						</td>
-						<td>
-							<p class="invoice-name">New Project expense invoice</p>
-							<span class="invoice-number">Invoice no. 88</span>
-						</td>
-						<td>$100.00</td>
-						<td>Apple</td>
-						<td>
-							<p class="status status-unpaid">Not Send</p>
-						</td>
-						<td>11:21 08.10.2121</td>
-						<td>
-							<div class="dropdown">
-								<span>
-									<i class='bx bx-dots-horizontal-rounded action-icon'></i>
-								</span>
-								<div class="dropdown-content">
-									<a><i class='bx bx-edit'></i>Edit</a>
-									<a><i class='bx bx-mail-send'></i>Re Send</a>
-									<a><i class='bx bx-download'></i>Download</a>
-									<a><i class='bx bx-archive'></i>Archive</a>
+					{props.invoices.map(invoice =>
+						<tr key={`invoice-${invoice.id}`}>
+							<td>
+								<div class="select-box">
+									<label class="checkbox-container">
+										<input type="checkbox" />
+										<span class="checkmark"></span>
+									</label>
+									<i class='bx bx-file invoice-icon'></i>
 								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="select-box">
-								<label class="checkbox-container">
-									<input type="checkbox" />
-									<span class="checkmark"></span>
-								</label>
-								<i class='bx bx-file invoice-icon'></i>
-							</div>
-						</td>
-						<td>
-							<p class="invoice-name">New Project expense invoice</p>
-							<span class="invoice-number">Invoice no. 88</span>
-						</td>
-						<td>$100.00</td>
-						<td>Apple</td>
-						<td>
-							<p class="status status-paid">Send</p>
-						</td>
-						<td>11:21 08.10.2121</td>
-						<td>
-							<div class="dropdown">
-								<span>
-									<i class='bx bx-dots-horizontal-rounded action-icon'></i>
-								</span>
-								<div class="dropdown-content">
-									<a><i class='bx bx-edit'></i>Edit</a>
-									<a><i class='bx bx-mail-send'></i>Re Send</a>
-									<a><i class='bx bx-download'></i>Download</a>
-									<a><i class='bx bx-archive'></i>Archive</a>
+							</td>
+							<td>
+								<p class="invoice-name">{invoice.name}</p>
+								<span class="invoice-number">Invoice no. {invoice.id}</span>
+							</td>
+							<td>$100.00</td>
+							<td>{invoice.client && invoice.client.name}</td>
+							<td>
+								<p class={`status ${getStatusClass(invoice.status)}`}>{startCase(invoice.status)}</p>
+							</td>
+							<td>{moment(invoice.createdAt).format('hh:mm MM.DD.YYYY')}</td>
+							<td>
+								<div class="dropdown">
+									<span>
+										<i class='bx bx-dots-horizontal-rounded action-icon'></i>
+									</span>
+									<div class="dropdown-content">
+										<a><i class='bx bx-edit'></i>Edit</a>
+										<a><i class='bx bx-mail-send'></i>Re Send</a>
+										<a><i class='bx bx-download'></i>Download</a>
+										<a><i class='bx bx-archive'></i>Archive</a>
+									</div>
 								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="select-box">
-								<label class="checkbox-container">
-									<input type="checkbox" />
-									<span class="checkmark"></span>
-								</label>
-								<i class='bx bx-file invoice-icon'></i>
-							</div>
-						</td>
-						<td>
-							<p class="invoice-name">New Project expense invoice</p>
-							<span class="invoice-number">Invoice no. 88</span>
-						</td>
-						<td>$100.00</td>
-						<td>Apple</td>
-						<td>
-							<p class="status status-pending">Pending</p>
-						</td>
-						<td>11:21 08.10.2121</td>
-						<td>
-							<div class="dropdown">
-								<span>
-									<i class='bx bx-dots-horizontal-rounded action-icon'></i>
-								</span>
-								<div class="dropdown-content">
-									<a><i class='bx bx-edit'></i>Edit</a>
-									<a><i class='bx bx-mail-send'></i>Re Send</a>
-									<a><i class='bx bx-download'></i>Download</a>
-									<a><i class='bx bx-archive'></i>Archive</a>
-								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="select-box">
-								<label class="checkbox-container">
-									<input type="checkbox" />
-									<span class="checkmark"></span>
-								</label>
-								<i class='bx bx-file invoice-icon'></i>
-							</div>
-						</td>
-						<td>
-							<p class="invoice-name">New Project expense invoice</p>
-							<span class="invoice-number">Invoice no. 88</span>
-						</td>
-						<td>$100.00</td>
-						<td>Apple</td>
-						<td>
-							<p class="status status-pending">Pending</p>
-						</td>
-						<td>11:21 08.10.2121</td>
-						<td>
-							<div class="dropdown">
-								<span>
-									<i class='bx bx-dots-horizontal-rounded action-icon'></i>
-								</span>
-								<div class="dropdown-content">
-									<a><i class='bx bx-edit'></i>Edit</a>
-									<a><i class='bx bx-mail-send'></i>Re Send</a>
-									<a><i class='bx bx-download'></i>Download</a>
-									<a><i class='bx bx-archive'></i>Archive</a>
-								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="select-box">
-								<label class="checkbox-container">
-									<input type="checkbox" />
-									<span class="checkmark"></span>
-								</label>
-								<i class='bx bx-file invoice-icon'></i>
-							</div>
-						</td>
-						<td>
-							<p class="invoice-name">New Project expense invoice</p>
-							<span class="invoice-number">Invoice no. 88</span>
-						</td>
-						<td>$100.00</td>
-						<td>Apple</td>
-						<td>
-							<p class="status status-paid">Send</p>
-						</td>
-						<td>11:21 08.10.2121</td>
-						<td>
-							<div class="dropdown">
-								<span>
-									<i class='bx bx-dots-horizontal-rounded action-icon'></i>
-								</span>
-								<div class="dropdown-content">
-									<a><i class='bx bx-edit'></i>Edit</a>
-									<a><i class='bx bx-mail-send'></i>Re Send</a>
-									<a><i class='bx bx-download'></i>Download</a>
-									<a><i class='bx bx-archive'></i>Archive</a>
-								</div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="select-box">
-								<label class="checkbox-container">
-									<input type="checkbox" />
-									<span class="checkmark"></span>
-								</label>
-								<i class='bx bx-file invoice-icon'></i>
-							</div>
-						</td>
-						<td>
-							<p class="invoice-name">New Project expense invoice</p>
-							<span class="invoice-number">Invoice no. 88</span>
-						</td>
-						<td>$100.00</td>
-						<td>Apple</td>
-						<td>
-							<p class="status status-pending">Pending</p>
-						</td>
-						<td>11:21 08.10.2121</td>
-						<td>
-							<div class="dropdown">
-								<span>
-									<i class='bx bx-dots-horizontal-rounded action-icon'></i>
-								</span>
-								<div class="dropdown-content">
-									<a><i class='bx bx-edit'></i>Edit</a>
-									<a><i class='bx bx-mail-send'></i>Re Send</a>
-									<a><i class='bx bx-download'></i>Download</a>
-									<a><i class='bx bx-archive'></i>Archive</a>
-								</div>
-							</div>
-						</td>
-					</tr>
+							</td>
+						</tr>
+					)}
 				</tbody>
 			</table>
 		</div>
 	);
 }
 
-export default Invoices;
+function mapStateToProps(state) {
+  const { invoice } = state;
+  const { message } = state.toastrMessage;
+  return {
+    invoices: invoice.invoices,
+    message
+  };
+}
+
+export default connect(mapStateToProps)(Invoices);

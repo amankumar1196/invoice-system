@@ -342,6 +342,7 @@ p {
   .main-content {
     background-color: var(--body-color);
     padding: 32px 32px;
+    /* height: calc(100vh - 4rem); */
   }
   .nav-open {
     padding-left: 220px;
@@ -356,6 +357,9 @@ p {
 }
 .justify-content-between {
   justify-content: space-between;
+}
+.justify-content-center {
+  justify-content: center;
 }
 .fs-10 {
   font-size: 0.675rem;
@@ -399,6 +403,9 @@ p {
 .pr-32 {
   padding-right: 32px;
 }
+.pt-20 {
+  padding-top: 1.25rem;
+}
 .pt-24 {
   padding-top: 1.5rem;
 }
@@ -427,4 +434,7 @@ p {
 }
 .color-primary {
   color: #3a67d9
+}
+.color-danger {
+  color: #dc3545;
 }

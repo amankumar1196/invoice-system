@@ -6,7 +6,7 @@ const InputField = ({ label, ...props }) => {
   const [field, meta] = useField(props);
   const isError = meta.touched && meta.error;
   return (
-    <div className="form-group">
+    <div className={`${props.wrapperClass ? props.wrapperClass : "form-group"}`}>
       <label htmlFor={props.id || props.name}>{label}</label>
       <div class="input-field-wrapper">
         <input className={`form-control ${isError && "is-invalid"}`} {...field} {...props} />

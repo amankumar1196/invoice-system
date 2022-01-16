@@ -11,7 +11,7 @@ import {
 
 export const register = (data) => async (dispatch) => {
   try {
-    const res = await apiHandler.post("/auth/signup", data);
+    const res = await apiHandler.post("/v1/auth/signup", data);
 
     dispatch({
       type: REGISTER_SUCCESS,
@@ -46,7 +46,7 @@ export const register = (data) => async (dispatch) => {
 
 export const login = (data) => async (dispatch) => {
   try {
-    const res = await apiHandler.post("/auth/signin", data);
+    const res = await apiHandler.post("/v1/auth/signin", data);
 
     dispatch({
       type: LOGIN_SUCCESS,

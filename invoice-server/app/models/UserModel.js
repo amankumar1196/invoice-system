@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const User = sequelize.define("users", {
+  let User = sequelize.define("user", {
     firstName: {
       type: Sequelize.STRING
     },
@@ -15,7 +15,35 @@ module.exports = (sequelize, Sequelize) => {
     password: {
       type: Sequelize.STRING
     }
-  });
+  }, {});
+
+  User.associate = function(models) {
+    // associations can be defined 
+    User.belongsToMany(models.role, {
+      through: "user_roles",
+      foreignKey: "userId",
+      otherKey: "roleId"
+    });
+
+    User.belongsToMany(models.company, {
+      through: "user_companies",
+      foreignKey: "userId",
+      otherKey: "comapnyId"
+    });
+
+    User.hasMany(models.invoice, {
+      as: "invoices"
+    });
+
+    User.hasOne(models.address, {
+      foreignKey: 'addressId',
+      constraints: false,
+      scope: {
+        commentableType: 'user'
+      },
+      as: "address"
+    });
+  };
 
   return User;
 };
